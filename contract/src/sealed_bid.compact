@@ -1,0 +1,53 @@
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+// ─── Public ledger state ────────────────────────────────────────────────────
+// Everything below is visible to anyone reading the chain.
+
+// Hash commitment of the bid currently sealed. Reveals nothing about the
+// amount or the bidder until revealBid() is called with matching witnesses.
+export ledger sealedCommitment: Bytes<32>;
+
+// The highest bid amount ever disclosed via a successful reveal. Starts at 0
+// and only moves when a revealed bid actually beats the previous one.
+export ledger highestBid: Uint<64>;
+
+// Identity of the current highest bidder, disclosed alongside highestBid.
+export ledger winnerId: Bytes<32>;
+
+// How many bids have been sealed in total (public, but reveals nothing about
+// their contents).
+export ledger bidsSubmitted: Counter;
+
+// ─── Private witnesses ──────────────────────────────────────────────────────
+// Supplied locally by the caller's own code (see witnesses.ts). Never appear
+// on the ledger unless a circuit explicitly wraps them in disclose().
+
+witness bidAmount(): Uint<64>;
+witness bidNonce(): Bytes<32>;
+witness bidderId(): Bytes<32>;
+
+// ─── Circuits ────────────────────────────────────────────────────────────────
+
+// Phase 1: seal a bid. Only a hash commitment of the private bid amount and a
+// private nonce is written to the public ledger — the amount itself stays on
+// the bidder's machine.
+export circuit submitSealedBid(): [] {
+  sealedCommitment = disclose(persistentCommit<Uint<64>>(bidAmount(), bidNonce()));
+  bidsSubmitted.increment(1);
+}
+
+// Phase 2: reveal a bid. The caller re-supplies the same witnesses used to
+// seal the bid; the circuit proves they match the stored commitment without
+// ever having exposed them earlier. Only if the revealed amount is a new
+// high does it get disclosed onto the public ledger.
+export circuit revealBid(): [] {
+  const commitment = persistentCommit<Uint<64>>(bidAmount(), bidNonce());
+  assert(commitment == sealedCommitment, "revealBid: commitment does not match sealed bid");
+
+  if (disclose(bidAmount() > highestBid)) {
+    highestBid = disclose(bidAmount());
+    winnerId = disclose(bidderId());
+  }
+}

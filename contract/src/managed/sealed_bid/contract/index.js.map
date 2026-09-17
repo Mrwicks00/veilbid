@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../../",
+  "sources": ["src/sealed_bid.compact", "compiler/standard-library.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAAA;;;;;;;;;;;;;;;;;;;MAmCA,AAAA,eAGC;;;;;;;;;;;;;;;;;;;;;;OAAA;MAMD,AAAA,SAQC;;;;;;;;;;;;;;;;;;;;;;OAAA;;;;;;;;;;GACA;EArDD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IASA;;;;;;;;;yEAA0C;IAI1C;;;;;;;;;yEAAmC;IAGnC;;;;;;;;;yEAAkC;IAIlC;;;;;;;;;yEAAqC;;;;;;;GAiCpC;ECrDD,AAAA,oBAAA,SAAA;;uDAAA;uDAAA;;;ED0BA,AAAA,YAA8B;;0DAA9B,SAA8B;;;;;;;;;;;;;;GAAA;EAC9B,AAAA,WAA8B;;0DAA9B,QAA8B;;;;;;;;;;;;;;GAAA;EAC9B,AAAA,WAA8B;;0DAA9B,QAA8B;;;;;;;;;;;;;;GAAA;EAO9B,AAAA,kBAGC;UAFC,KAAgB;;;;IAAhB;;;;;;;2HAAA,KAAgB;;yEAAA;UAChB,KAAa;IAAb;;;;;;;;;;6FAAA,KAAa;;;;wEAAA;;GACd;EAMD,AAAA,YAQC;UAPO,YAAgE;;;;0CAC/D,YAAU;kEAAI;;;;;;;;;;;uIAAgB;;QAExB,GAAwB;;QAAxB,GAAwB;;gCAAV;;;;;;;;;;;qGAAU;;YACnC,KAAU;MAAV;;;;;;;6HAAA,KAAU;;2EAAA;YACV,KAAQ;MAAR;;;;;;;6HAAA,KAAQ;;2EAAA;;;GAEX;;;;;;;;;;;;;;;;;;;;IA3CD;qCAAA;;;;;;;;;;;0GAA0C;KAAA;IAI1C;qCAAA;;;;;;;;;;;0GAAmC;KAAA;IAGnC;qCAAA;;;;;;;;;;;0GAAkC;KAAA;IAIlC;qCAAA;;;;;;;;;;;0GAAqC;KAAA;;;;;;;;;;;;;;"
+}
