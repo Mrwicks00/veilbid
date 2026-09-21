@@ -95,10 +95,13 @@ address.
 
 ## Screenshots
 
-- `docs/compile-output.png` — successful `compact compile` output listing both circuits, plus the generated
-  `managed/sealed_bid/` directory contents (circuits, keys, zkir).
-- `docs/deploy-output.png` — the deploy script's terminal output showing the funded wallet and the final
-  `Deployed contract at address: ...` line.
+**Successful compile** — both circuits compiled (`revealBid`, `submitSealedBid`):
+
+![compile output](docs/compile-output.png)
+
+**Deployed to Preview** — funded wallet and the resulting contract address:
+
+![deploy output](docs/deploy-output.png)
 
 ## Project structure
 
