@@ -6,3 +6,4 @@ logs/
 .env.*
 !.env.example
 reports/
+deploy/midnight-level-db/

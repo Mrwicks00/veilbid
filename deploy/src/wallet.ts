@@ -12,20 +12,24 @@ import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-p
 import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { type MidnightProvider, type WalletProvider } from "@midnight-ntwrk/midnight-js/types";
-import { getNetworkId } from "@midnight-ntwrk/midnight-js/network-id";
-import { toHex } from "@midnight-ntwrk/midnight-js/utils";
+import { getNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
+import { toHex } from "@midnight-ntwrk/midnight-js-utils";
 import { CompiledContract } from "@midnight-ntwrk/compact-js";
-import { WalletFacade } from "@midnight-ntwrk/wallet-sdk-facade";
-import { DustWallet } from "@midnight-ntwrk/wallet-sdk-dust-wallet";
-import { HDWallet, Roles, generateRandomSeed } from "@midnight-ntwrk/wallet-sdk-hd";
-import { ShieldedWallet } from "@midnight-ntwrk/wallet-sdk-shielded";
 import {
+  WalletFacade,
+  DustWallet,
+  HDWallet,
+  Roles,
+  generateRandomSeed,
+  ShieldedWallet,
   createKeystore,
   InMemoryTransactionHistoryStorage,
+  WalletEntrySchema,
+  mergeWalletEntries,
   PublicKey,
   UnshieldedWallet,
   type UnshieldedKeystore
-} from "@midnight-ntwrk/wallet-sdk-unshielded-wallet";
+} from "@midnight-ntwrk/wallet-sdk";
 import * as Rx from "rxjs";
 import { WebSocket } from "ws";
 import {
@@ -40,7 +44,7 @@ import { type Config, contractConfig } from "./config.js";
 globalThis.WebSocket = WebSocket;
 
 const sealedBidCompiledContract = CompiledContract.make("sealed_bid", SealedBid.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
+  CompiledContract.withWitnesses(witnesses),
   CompiledContract.withCompiledFileAssets(contractConfig.zkConfigPath)
 );
 
@@ -137,10 +141,24 @@ export const createWalletAndMidnightProvider = async (
   };
 };
 
+const formatProgress = (progress: any): string => {
+  const applied = progress.appliedIndex ?? progress.appliedId;
+  const target = progress.highestRelevantWalletIndex ?? progress.highestTransactionId;
+  return `${applied}/${target}`;
+};
+
 export const waitForSync = (wallet: WalletFacade) =>
   Rx.firstValueFrom(
     wallet.state().pipe(
       Rx.throttleTime(5_000),
+      Rx.tap((state: any) => {
+        const shielded = state.shielded.state.progress;
+        const unshielded = state.unshielded.progress;
+        const dust = state.dust.state.progress;
+        console.log(
+          `\n  sync progress: shielded=${formatProgress(shielded)} unshielded=${formatProgress(unshielded)} dust=${formatProgress(dust)}`
+        );
+      }),
       Rx.filter((state) => state.isSynced)
     )
   );
@@ -165,7 +183,7 @@ const buildShieldedConfig = ({ indexer, indexerWS, node, proofServer }: Config) 
 const buildUnshieldedConfig = ({ indexer, indexerWS }: Config) => ({
   networkId: getNetworkId(),
   indexerClientConnection: { indexerHttpUrl: indexer, indexerWsUrl: indexerWS },
-  txHistoryStorage: new InMemoryTransactionHistoryStorage()
+  txHistoryStorage: new InMemoryTransactionHistoryStorage(WalletEntrySchema, mergeWalletEntries)
 });
 
 const buildDustConfig = ({ indexer, indexerWS, node, proofServer }: Config) => ({
