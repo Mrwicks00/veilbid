@@ -1,5 +1,6 @@
 "use client";
 
+import { ensureFetchIsBound } from "@/lib/bindFetch";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { ContractProvider } from "@/contexts/ContractContext";
 import { WalletConnectButton } from "@/components/WalletConnectButton";
@@ -9,6 +10,8 @@ import { PublicLedgerPanel } from "@/components/PublicLedgerPanel";
 import { PrivacyLedger } from "@/components/PrivacyLedger";
 import { CONTRACT_ADDRESS, NETWORK_ID } from "@/lib/network";
 import { shortHex } from "@/lib/bid";
+
+ensureFetchIsBound();
 
 export default function HomeClient() {
   return (
