@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "copy-zk-assets": "rm -rf public/compiler public/keys public/zkir && mkdir -p public/compiler public/keys public/zkir && cp -R ../contract/src/managed/sealed_bid/compiler/. public/compiler/ && cp -R ../contract/src/managed/sealed_bid/keys/. public/keys/ && cp -R ../contract/src/managed/sealed_bid/zkir/. public/zkir/",
-    "predev": "npm run copy-zk-assets",
-    "prebuild": "npm run copy-zk-assets",
+    "build-contract": "cd ../contract && npm run build",
+    "predev": "npm run build-contract && npm run copy-zk-assets",
+    "prebuild": "npm run build-contract && npm run copy-zk-assets",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
