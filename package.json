@@ -14,6 +14,8 @@
     "vitest": "^2.1.8"
   },
   "overrides": {
-    "smoldot": "npm:@aspect-build/empty@0.0.0"
+    "smoldot": "npm:@aspect-build/empty@0.0.0",
+    "@midnight-ntwrk/onchain-runtime-v3": "3.0.0",
+    "@midnight-ntwrk/ledger-v8": "8.1.0"
   }
 }
