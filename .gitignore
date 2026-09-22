@@ -7,3 +7,8 @@ logs/
 !.env.example
 reports/
 deploy/midnight-level-db/
+web/.next/
+web/public/compiler/
+web/public/keys/
+web/public/zkir/
+web/next-env.d.ts
