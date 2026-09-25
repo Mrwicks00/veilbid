@@ -4,7 +4,8 @@ A sealed-bid commitment contract for [Midnight](https://midnight.network), with 
 calls it live. Built across the **New Moon (Level 1)** and **First Thread of Light (Level 2)** cycles of the
 monthly Midnight builder challenge.
 
-**Live demo:** _link pending — being deployed on Vercel_
+**Live demo:** [veilbid-web.vercel.app](https://veilbid-web.vercel.app/)
+**Demo video:** [youtu.be/3MLqEKpK8DI](https://youtu.be/3MLqEKpK8DI)
 **Deployed on Preview:** `0400eed09ee11423a976fb09750a76fb0ac7974ac04e797c6f3c203bdd750418`
 (verifiable via the Preview indexer's `contractAction` query, on a Midnight Preview block explorer, or directly in
 the app's own "Public Ledger" panel, which reads it with no wallet connected at all)
@@ -103,7 +104,7 @@ the transaction. Once sealed, **Reveal this bid** becomes available.
 
 ### Demo video
 
-_pending — recording a short screen capture of: connect Lace → seal a bid → reveal it → Privacy Ledger updates_
+[youtu.be/3MLqEKpK8DI](https://youtu.be/3MLqEKpK8DI) — connecting Lace, sealing a bid, and revealing it live on Preview.
 
 ### Setup — contract, tests, and deploy
 
