@@ -22,9 +22,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "veilbid — a sealed bid, proven not shown",
+  title: "veilbid — many bidders, one winner, proven not shown",
   description:
-    "A sealed-bid auction on Midnight. Commit a bid as a hash; only the winning amount is ever disclosed on-chain."
+    "A sealed-bid auction on Midnight. Each bidder commits a bid as a hash; only the winning amount is ever disclosed on-chain."
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
