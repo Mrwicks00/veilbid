@@ -1,20 +1,11 @@
 "use client";
 
-import { useLedgerState } from "@/lib/useLedgerState";
-import { isZeroHex, shortHex } from "@/lib/bid";
-
 /**
- * The page's signature element: a live pulse of the auction, stamped onto the page the way a
- * wax seal proves a letter was closed without revealing what's inside it. With many bidders
- * holding independent sealed slots at once, there's no single "the" commitment anymore — the
- * stamp instead reflects how many are sealed right now and whether a winner has surfaced.
+ * The page's signature element: a wax seal, stamped onto the page the way a real one proves a
+ * letter was closed without revealing what's inside it. Purely decorative branding — the
+ * auction's live numbers live in AuctionStatusBar just below.
  */
 export function SealStamp() {
-  const { state, loading } = useLedgerState();
-
-  const sealedCount = state?.sealedCommitments.length ?? 0;
-  const hasWinner = state && !isZeroHex(state.winnerId);
-
   return (
     <div className="flex items-center gap-4 border-y border-rule/60 py-4">
       <span
@@ -32,14 +23,10 @@ export function SealStamp() {
       </span>
       <div className="min-w-0">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-dim">
-          sealed bids live on-chain
+          sealed-bid auction
         </p>
         <p className="truncate font-mono text-sm text-ink-bright sm:text-base">
-          {loading
-            ? "reading the ledger…"
-            : sealedCount === 0
-              ? "no bids sealed yet"
-              : `${sealedCount} sealed${hasWinner ? ` · highest bid revealed: 0x${shortHex(state!.winnerId, 6, 4)}` : ""}`}
+          proven not shown, until it wins
         </p>
       </div>
     </div>
