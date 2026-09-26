@@ -28,7 +28,6 @@ export function PublicLedgerPanel() {
         <p className="text-sm text-seal">{error}</p>
       ) : state ? (
         <div>
-          <Row label="sealed commitment" value={`0x${shortHex(state.sealedCommitment, 8, 6)}`} />
           <Row label="bids submitted" value={state.bidsSubmitted.toString()} mono={false} />
           <Row
             label="highest bid disclosed"
@@ -39,6 +38,27 @@ export function PublicLedgerPanel() {
             label="winner"
             value={isZeroHex(state.winnerId) ? "— sealed —" : `0x${shortHex(state.winnerId, 6, 4)}`}
           />
+
+          <div className="mt-4">
+            <p className="mb-2 text-xs text-ink-dim">
+              sealed bids in this auction ({state.sealedCommitments.length})
+            </p>
+            {state.sealedCommitments.length === 0 ? (
+              <p className="font-mono text-xs text-ink-dim">— none sealed yet —</p>
+            ) : (
+              <ul className="space-y-1.5">
+                {state.sealedCommitments.map((entry) => (
+                  <li
+                    key={entry.key}
+                    className="flex items-center justify-between rounded-md border border-rule/50 bg-ink px-3 py-1.5 font-mono text-[11px] text-ink-bright"
+                  >
+                    <span className="text-ink-dim">0x{shortHex(entry.key, 6, 4)}</span>
+                    <span>0x{shortHex(entry.commitment, 8, 6)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       ) : (
         <p className="text-sm text-ink-dim">No contract state found.</p>

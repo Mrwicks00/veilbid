@@ -5,8 +5,13 @@ import { CONTRACT_ADDRESS, FALLBACK_INDEXER_HTTP, FALLBACK_INDEXER_WS, NETWORK_I
 
 setNetworkId(NETWORK_ID);
 
+export type SealedCommitmentEntry = {
+  key: string;
+  commitment: string;
+};
+
 export type SealedBidLedgerState = {
-  sealedCommitment: string;
+  sealedCommitments: SealedCommitmentEntry[];
   highestBid: bigint;
   winnerId: string;
   bidsSubmitted: bigint;
@@ -28,8 +33,12 @@ export async function readSealedBidLedger(): Promise<SealedBidLedgerState | null
   if (!contractState) return null;
 
   const ledger = SealedBid.ledger(contractState.data);
+  const sealedCommitments: SealedCommitmentEntry[] = Array.from(ledger.sealedCommitments).map(
+    ([key, commitment]) => ({ key: bytesToHex(key), commitment: bytesToHex(commitment) })
+  );
+
   return {
-    sealedCommitment: bytesToHex(ledger.sealedCommitment),
+    sealedCommitments,
     highestBid: ledger.highestBid,
     winnerId: bytesToHex(ledger.winnerId),
     bidsSubmitted: ledger.bidsSubmitted

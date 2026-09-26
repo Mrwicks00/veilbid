@@ -25,6 +25,7 @@ export type BidRecord = {
   amount: bigint;
   nonce: string;
   bidderId: string;
+  slotKey: string;
 };
 
 type CallPhase = "idle" | "proving" | "submitted" | "error";
@@ -63,7 +64,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     if (sessionRef.current) return sessionRef.current;
 
     const providers = await providersFromWallet(api);
-    const placeholder: SealedBidPrivateState = createSealedBidPrivateState(0n, ZERO_HEX, ZERO_HEX);
+    const placeholder: SealedBidPrivateState = createSealedBidPrivateState(0n, ZERO_HEX, ZERO_HEX, ZERO_HEX);
     const contract = await joinSealedBidContract(providers, placeholder);
     sessionRef.current = { providers, contract };
     return sessionRef.current;
@@ -75,11 +76,16 @@ export function ContractProvider({ children }: { children: ReactNode }) {
       setError(null);
       setDisclosed(false);
       try {
-        const bid: BidRecord = { amount: amountNight, nonce: randomHex32(), bidderId: randomHex32() };
+        const bid: BidRecord = {
+          amount: amountNight,
+          nonce: randomHex32(),
+          bidderId: randomHex32(),
+          slotKey: randomHex32()
+        };
         const { providers, contract } = await getSession();
         await providers.privateStateProvider.set(
           SealedBidPrivateStateId,
-          createSealedBidPrivateState(bid.amount, bid.nonce, bid.bidderId)
+          createSealedBidPrivateState(bid.amount, bid.nonce, bid.bidderId, bid.slotKey)
         );
         const result = await contract.callTx.submitSealedBid();
         setMyBid(bid);
@@ -105,7 +111,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
       const { providers, contract } = await getSession();
       await providers.privateStateProvider.set(
         SealedBidPrivateStateId,
-        createSealedBidPrivateState(myBid.amount, myBid.nonce, myBid.bidderId)
+        createSealedBidPrivateState(myBid.amount, myBid.nonce, myBid.bidderId, myBid.slotKey)
       );
       const result = await contract.callTx.revealBid();
       setLastTxId(result.public.txId);

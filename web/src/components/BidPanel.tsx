@@ -11,7 +11,8 @@ export function BidPanel() {
 
   const connected = status === "connected";
   const busy = phase === "proving";
-  const canSubmit = connected && !busy && amount.trim().length > 0 && !myBid;
+  const amountValue = Number(amount);
+  const canSubmit = connected && !busy && Number.isFinite(amountValue) && amountValue > 0 && !myBid;
   const canReveal = connected && !busy && myBid && !disclosed;
 
   return (
@@ -25,8 +26,8 @@ export function BidPanel() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const value = BigInt(Math.max(0, Math.floor(Number(amount) || 0)));
-            void submitBid(value);
+            if (!canSubmit) return;
+            void submitBid(BigInt(Math.floor(amountValue)));
           }}
           className="space-y-4"
         >

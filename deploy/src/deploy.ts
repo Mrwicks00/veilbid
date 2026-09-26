@@ -35,7 +35,8 @@ async function main() {
     const contract = await deploy(providers, {
       bidAmount: 0n,
       bidNonce: "0".repeat(64),
-      bidderId: "0".repeat(64)
+      bidderId: "0".repeat(64),
+      slotKey: "0".repeat(64)
     });
 
     const address = contract.deployTxData.public.contractAddress;
