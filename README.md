@@ -6,12 +6,15 @@ monthly Midnight builder challenge.
 
 **Live demo:** [veilbid-web.vercel.app](https://veilbid-web.vercel.app/)
 **Demo video:** [youtu.be/3MLqEKpK8DI](https://youtu.be/3MLqEKpK8DI)
-**Deployed on Preview:** `0400eed09ee11423a976fb09750a76fb0ac7974ac04e797c6f3c203bdd750418`
+**Deployed on Preview:** `00a828a2f34e3132db47a8e8c27436eed7e89e5edd359cddd11ea9bdf5a74a2a`
 (verifiable via the Preview indexer's `contractAction` query, on a Midnight Preview block explorer, or directly in
 the app's own "Public Ledger" panel, which reads it with no wallet connected at all)
 
 > Level 2 targets **Preview**, not Preprod — the same network as the Level 1 deployment above, so the frontend
 > joins an already-verified contract instead of redeploying.
+
+> **Level 3 update:** the contract was redeployed at this address after redesigning it to support multiple
+> concurrent sealed bidders (see "Multi-bidder auction" below) — the Level 1/2 address above is superseded.
 
 ## Level 1 — contract and deploy
 
@@ -33,8 +36,9 @@ what stays as a private witness (known only to whoever supplies it, and never tr
 explicitly discloses it). This contract uses both deliberately:
 
 **Public ledger state** (`contract/src/sealed_bid.compact`):
-- `sealedCommitment: Bytes<32>` — a hash commitment of the currently sealed bid. Anyone can see a bid exists and a
-  commitment was made; nobody can recover the amount or bidder from it.
+- `sealedCommitments: Map<Bytes<32>, Bytes<32>>` — a hash commitment per sealed bid, keyed by that bid's own random
+  slot. Anyone can see how many bids exist and their commitment hashes; nobody can recover an amount or bidder
+  from any of them.
 - `highestBid: Uint<64>` and `winnerId: Bytes<32>` — the amount and identity of the current highest bidder, but
   **only after** a winning reveal. They stay at their zero defaults for every bid that never becomes the winner.
 - `bidsSubmitted: Counter` — a public count of how many bids have ever been sealed. Reveals activity, not content.
@@ -42,16 +46,33 @@ explicitly discloses it). This contract uses both deliberately:
 **Private witnesses** (`contract/src/witnesses.ts`):
 - `bidAmount()`, `bidNonce()`, `bidderId()` — supplied locally by the bidder's own code. These values never appear
   on the ledger on their own.
+- `slotKey()` — a random per-bid handle used only to route a bid to its own Map slot (see "Multi-bidder auction"
+  below). It carries no identity meaning and never appears inside the commitment hash.
 
 The two circuits show the boundary in action:
-- `submitSealedBid()` computes `persistentCommit(bidAmount(), bidNonce())` and writes only that hash to the ledger.
-  The amount itself never leaves the caller's machine at this stage.
-- `revealBid()` recomputes the same commitment and asserts it matches what was sealed earlier — proving the caller
-  knew the value all along without ever having exposed it. Only if the revealed amount beats the current
+- `submitSealedBid()` computes `persistentCommit(bidAmount(), bidNonce())` and inserts only that hash into
+  `sealedCommitments`, under this bid's own `slotKey()`. The amount itself never leaves the caller's machine at
+  this stage.
+- `revealBid()` recomputes the same commitment and asserts it matches that slot's stored value — proving the
+  caller knew the value all along without ever having exposed it. Only if the revealed amount beats the current
   `highestBid` does the circuit call `disclose(bidAmount())` and `disclose(bidderId())` to deliberately publish
   those values. The Compact compiler enforces this: writing a witness-derived value (or even branching on a
   comparison involving one) to the ledger without an explicit `disclose()` is a compile error, not just a
   convention.
+
+### Multi-bidder auction (Level 3)
+
+The original single-`Bytes<32>` `sealedCommitment` field could only hold one active sealed bid at a time — a
+second `submitSealedBid()` call would silently overwrite the first. `sealedCommitments` is now a
+`Map<Bytes<32>, Bytes<32>>`, so many bidders can hold independent sealed slots at once.
+
+The Map needs a public key to route each bid to its own slot, which raised a real design question: keying by
+`bidderId` would disclose *who* submitted a bid at submit time, a privacy regression versus the original design
+(identity was only ever revealed if that bid later won). Keying by `bidNonce` would be worse — it's the blinding
+factor inside the commitment hash, so publishing it would let anyone brute-force a bidder's (low-entropy) amount
+by recomputing `persistentCommit(candidate, disclosed_nonce)` against the stored hash. `slotKey()` is a third,
+independent random value used solely as a Map handle: disclosing it leaks nothing beyond "a sealed commitment
+exists here," exactly matching what the original single-slot design already leaked.
 
 ## Level 2 — frontend and Lace
 

@@ -6,7 +6,7 @@ export const NETWORK_ID = (process.env.NEXT_PUBLIC_NETWORK_ID ?? "preview") as
 
 export const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ??
-  "0400eed09ee11423a976fb09750a76fb0ac7974ac04e797c6f3c203bdd750418";
+  "00a828a2f34e3132db47a8e8c27436eed7e89e5edd359cddd11ea9bdf5a74a2a";
 
 const DEFAULT_INDEXER: Record<string, { http: string; ws: string }> = {
   preview: {

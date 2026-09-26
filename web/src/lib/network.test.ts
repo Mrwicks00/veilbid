@@ -28,7 +28,7 @@ describe("network defaults", () => {
   it("defaults to preview with the deployed Level 1 contract address", async () => {
     const { NETWORK_ID, CONTRACT_ADDRESS } = await import("./network");
     expect(NETWORK_ID).toBe("preview");
-    expect(CONTRACT_ADDRESS).toBe("0400eed09ee11423a976fb09750a76fb0ac7974ac04e797c6f3c203bdd750418");
+    expect(CONTRACT_ADDRESS).toBe("00a828a2f34e3132db47a8e8c27436eed7e89e5edd359cddd11ea9bdf5a74a2a");
   });
 
   it("defaults the indexer endpoints to Preview when no network is set", async () => {
