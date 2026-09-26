@@ -7,13 +7,15 @@ export type SealedBidPrivateState = {
   bidAmount: bigint;
   bidNonce: string; // 32-byte hex string
   bidderId: string; // 32-byte hex string
+  slotKey: string; // 32-byte hex string — random per-bid Map handle, no identity meaning
 };
 
 export const createSealedBidPrivateState = (
   bidAmount: bigint,
   bidNonce: string,
-  bidderId: string
-): SealedBidPrivateState => ({ bidAmount, bidNonce, bidderId });
+  bidderId: string,
+  slotKey: string
+): SealedBidPrivateState => ({ bidAmount, bidNonce, bidderId, slotKey });
 
 const hexToBytes32 = (hex: string): Uint8Array => {
   const clean = hex.length === 64 ? hex : hex.padStart(64, "0");
@@ -39,5 +41,10 @@ export const witnesses = {
     context: WitnessContext<Ledger, SealedBidPrivateState>
   ): [SealedBidPrivateState, Uint8Array] {
     return [context.privateState, hexToBytes32(context.privateState.bidderId)];
+  },
+  slotKey(
+    context: WitnessContext<Ledger, SealedBidPrivateState>
+  ): [SealedBidPrivateState, Uint8Array] {
+    return [context.privateState, hexToBytes32(context.privateState.slotKey)];
   }
 };

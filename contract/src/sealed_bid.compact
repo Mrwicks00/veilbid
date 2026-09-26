@@ -5,9 +5,11 @@ import CompactStandardLibrary;
 // ─── Public ledger state ────────────────────────────────────────────────────
 // Everything below is visible to anyone reading the chain.
 
-// Hash commitment of the bid currently sealed. Reveals nothing about the
-// amount or the bidder until revealBid() is called with matching witnesses.
-export ledger sealedCommitment: Bytes<32>;
+// Sealed commitments, keyed by a random per-bid slotKey. Each entry reveals
+// nothing about its amount or bidder until revealBid() is called with the
+// matching witnesses — and the Map lets many bidders hold independent sealed
+// slots at once instead of one global slot overwriting the last.
+export ledger sealedCommitments: Map<Bytes<32>, Bytes<32>>;
 
 // The highest bid amount ever disclosed via a successful reveal. Starts at 0
 // and only moves when a revealed bid actually beats the previous one.
@@ -28,23 +30,35 @@ witness bidAmount(): Uint<64>;
 witness bidNonce(): Bytes<32>;
 witness bidderId(): Bytes<32>;
 
+// A random handle unrelated to bidderId or bidNonce, used only to route this
+// bid to its own Map slot. It carries no identity meaning and never appears
+// inside the commitment hash, so disclosing it as a Map key leaks nothing
+// beyond "some sealed commitment exists here" — exactly as much as the old
+// single-slot design leaked.
+witness slotKey(): Bytes<32>;
+
 // ─── Circuits ────────────────────────────────────────────────────────────────
 
 // Phase 1: seal a bid. Only a hash commitment of the private bid amount and a
-// private nonce is written to the public ledger — the amount itself stays on
-// the bidder's machine.
+// private nonce is written to the public ledger, under this bid's own slot —
+// the amount itself stays on the bidder's machine.
 export circuit submitSealedBid(): [] {
-  sealedCommitment = disclose(persistentCommit<Uint<64>>(bidAmount(), bidNonce()));
+  const key = disclose(slotKey());
+  const commitment = disclose(persistentCommit<Uint<64>>(bidAmount(), bidNonce()));
+  sealedCommitments.insert(key, commitment);
   bidsSubmitted.increment(1);
 }
 
-// Phase 2: reveal a bid. The caller re-supplies the same witnesses used to
-// seal the bid; the circuit proves they match the stored commitment without
-// ever having exposed them earlier. Only if the revealed amount is a new
-// high does it get disclosed onto the public ledger.
+// Phase 2: reveal a bid. The caller re-supplies the same slotKey and witnesses
+// used to seal it; the circuit proves they match that slot's stored
+// commitment without ever having exposed them earlier. Only if the revealed
+// amount is a new high does it get disclosed onto the public ledger.
 export circuit revealBid(): [] {
+  const key = disclose(slotKey());
+  assert(sealedCommitments.member(key), "revealBid: no sealed bid for this slot");
+
   const commitment = persistentCommit<Uint<64>>(bidAmount(), bidNonce());
-  assert(commitment == sealedCommitment, "revealBid: commitment does not match sealed bid");
+  assert(commitment == sealedCommitments.lookup(key), "revealBid: commitment does not match sealed bid");
 
   if (disclose(bidAmount() > highestBid)) {
     highestBid = disclose(bidAmount());

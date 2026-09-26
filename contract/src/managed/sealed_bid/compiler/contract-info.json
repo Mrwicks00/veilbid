@@ -55,17 +55,30 @@
         "type-name": "Bytes",
         "length": 32
       }
+    },
+    {
+      "name": "slotKey",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
     }
   ],
   "contracts": [
   ],
   "ledger": [
     {
-      "name": "sealedCommitment",
+      "name": "sealedCommitments",
       "index": 0,
       "exported": true,
-      "storage": "Cell",
-      "type": {
+      "storage": "Map",
+      "key": {
+        "type-name": "Bytes",
+        "length": 32
+      },
+      "value": {
         "type-name": "Bytes",
         "length": 32
       }

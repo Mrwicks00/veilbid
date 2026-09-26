@@ -4,6 +4,7 @@ export type Witnesses<PS> = {
   bidAmount(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, bigint];
   bidNonce(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   bidderId(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  slotKey(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
 }
 
 export type ImpureCircuits<PS> = {
@@ -25,7 +26,13 @@ export type Circuits<PS> = {
 }
 
 export type Ledger = {
-  readonly sealedCommitment: Uint8Array;
+  sealedCommitments: {
+    isEmpty(): boolean;
+    size(): bigint;
+    member(key_0: Uint8Array): boolean;
+    lookup(key_0: Uint8Array): Uint8Array;
+    [Symbol.iterator](): Iterator<[Uint8Array, Uint8Array]>
+  };
   readonly highestBid: bigint;
   readonly winnerId: Uint8Array;
   readonly bidsSubmitted: bigint;
